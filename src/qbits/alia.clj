@@ -63,7 +63,7 @@
   "Sets root value of *session*"
   (utils/var-root-setter *session*))
 
-(t/ann *executor* (t/Option ExecutorService))
+(t/ann *executor* ExecutorService) ;; knit is untyped, will barf
 (def ^:dynamic *executor* (knit/executor :cached))
 
 (t/ann set-executor! [ExecutorService -> nil])
