@@ -10,7 +10,11 @@
    [qbits.alia.utils :as utils]
    [qbits.alia.cluster-options :as copt])
   (:import
-   [clojure.lang Sequential PersistentList APersistentVector]
+   [clojure.lang
+    Named
+    Sequential
+    PersistentList
+    APersistentVector]
    [com.datastax.driver.core
     BoundStatement
     Cluster
@@ -81,7 +85,12 @@
   "Sets root value of *keywordize*"
   (utils/var-root-setter *keywordize*))
 
+;; this should use types from hayt.types when it's published/merged
+(t/def-alias HaytRawFn [HaytQuery -> String])
+(t/ann *hayt-raw-fn* HaytRawFn)
 (def ^:dynamic *hayt-raw-fn* (memo/memo-lu hayt/->raw 100))
+
+(t/ann set-hayt-raw-fn! [HaytRawFn -> nil])
 (def set-hayt-raw-fn!
   "Sets root value of *hayt-raw-fn*, allowing to change
    the cache factory, defaults to LU with a threshold of 100"

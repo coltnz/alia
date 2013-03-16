@@ -4,7 +4,7 @@
    ;; [qbits.hayt.types :refer :all]
    )
   (:import
-   [clojure.lang Named IDeref IPersistentMap] ;; the IPMap need to be replace with HaytQuery Type
+   [clojure.lang Named IDeref] ;; the IPMap need to be replace with HaytQuery Type
     [com.datastax.driver.core
     PreparedStatement
     Query]))
@@ -18,10 +18,11 @@
 (t/def-alias ConsistencyValue (U ':one ':two ':three ':quorum ':local
                                  ':local-quorum ':each-quorum))
 
+(t/def-alias HaytQuery '{Named Any}) ;; replace with HaytQuery Type when merged
 (t/def-alias CQLQuery (U Query
                          PreparedStatement
                          String
-                         (IPersistentMap Named Any))) ;; replace with HaytQuery Type
+                         HaytQuery))
 
 (t/def-alias ColumnName (U String Named))
 (t/def-alias CQLResult (t/Option '{ColumnName Any}))
