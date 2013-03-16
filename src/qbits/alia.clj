@@ -1,6 +1,7 @@
 (ns qbits.alia
   (:require
    [clojure.core.memoize :as memo]
+   [clojure.core.typed :as t]
    [qbits.knit :as knit]
    [qbits.hayt :as hayt]
    [qbits.alia.codec :as codec]
@@ -22,8 +23,18 @@
    [com.google.common.util.concurrent
     Futures
     FutureCallback]
-   [java.nio ByteBuffer]))
+   [java.nio ByteBuffer]
+   [java.util.concurrent ExecutorService]))
 
+
+;; Types
+(t/def-alias ConsistencyType (U ':one ':two ':three ':quorum ':local ':local-quorum
+                              ':each-quorum))
+(t/ann *consistency* (t/Option ConsistencyType))
+(t/ann consistency-levels (HMap {ConsistencyLevel ConsistencyType}))
+(t/ann set-consistency! [ConsistencyType -> nil])
+
+;;
 (def ^:dynamic *consistency* :one)
 (def consistency-levels (utils/enum-values->map (ConsistencyLevel/values)))
 
@@ -37,6 +48,7 @@
   "Sets root value of *consistency*"
   (utils/var-root-setter *consistency*))
 
+(t/ann *session* (t/Option Session))
 (def ^:dynamic *session*)
 
 (defmacro with-session
@@ -45,12 +57,15 @@
   `(binding [qbits.alia/*session* ~session]
      ~@body))
 
+(t/ann set-session! [Session -> nil])
 (def set-session!
   "Sets root value of *session*"
   (utils/var-root-setter *session*))
 
+(t/ann *executor* (t/Option ExecutorService))
 (def ^:dynamic *executor* (knit/executor :cached))
 
+(t/ann set-executor! [ExecutorService -> nil])
 (def set-executor!
   "Sets root value of *executor*"
   (utils/var-root-setter *executor*))
@@ -61,8 +76,10 @@
   `(binding [qbits.alia/*executor* ~executor]
      ~@body))
 
+(t/ann *keywordize* Boolean)
 (def ^:dynamic *keywordize* false)
 
+(t/ann set-keywordize! [Boolean -> nil])
 (def set-keywordize!
   "Sets root value of *keywordize*"
   (utils/var-root-setter *keywordize*))

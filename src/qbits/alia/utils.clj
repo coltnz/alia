@@ -1,6 +1,11 @@
 (ns qbits.alia.utils
-  (:require [clojure.string :as string]))
+  (:import [clojure.lang Named])
+  (:require
+   [clojure.string :as string]
+   [clojure.core.typed :as t]))
 
+(t/ann enum-values->map (All [x]
+                             [(Array x) -> '{x Named}]))
 (defn enum-values->map
   [enum-values]
   (reduce
