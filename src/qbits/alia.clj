@@ -117,7 +117,8 @@ keyspaces from a single cluster instance"
   ([^Cluster cluster]
      (.connect cluster)))
 
-(t/ann shutdown [(U Cluster Session) -> nil])
+(t/ann shutdown (Fn [(U Cluster Session) -> nil]
+                    [-> nil]))
 (defn shutdown
   "Shutdowns Session or Cluster instance, clearing the underlying
 pools/connections"
