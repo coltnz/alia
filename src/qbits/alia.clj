@@ -9,6 +9,7 @@
    [qbits.alia.utils :as utils]
    [qbits.alia.cluster-options :as copt])
   (:import
+   [clojure.lang Sequential PersistentList APersistentVector]
    [com.datastax.driver.core
     BoundStatement
     Cluster
@@ -26,6 +27,10 @@
    [java.nio ByteBuffer]
    [java.util.concurrent ExecutorService]))
 
+(t/def-alias Sequential* (TFn [[x :variance :covariant]]
+                              (U (Vector* x)
+                                 (List* x)
+                                 (Seq* x))
 
 ;; Types
 (t/def-alias ConsistencyType (U ':one ':two ':three ':quorum ':local ':local-quorum
@@ -90,6 +95,9 @@
    the cache factory, defaults to LU with a threshold of 100"
   (utils/var-root-setter *hayt-raw-fn*))
 
+(t/ann cluster [(Sequential* String) ;; broken, will barf on seqs!
+                Any * ;; to be replaced with kw type when it is implemented in core.typed
+                -> Cluster])
 (defn cluster
   "Returns a new com.datastax.driver.core/Cluster instance"
   [hosts & {:as options}]
@@ -97,6 +105,8 @@
       (copt/set-cluster-options! (assoc options :contact-points hosts))
       .build))
 
+(t/ann connect (Fn [Cluster String -> Session]
+                   [Cluster -> Session]))
 (defn ^Session connect
   "Returns a new com.datastax.driver.core/Session instance. We need to
 have this separate in order to allow users to connect to multiple
@@ -106,6 +116,7 @@ keyspaces from a single cluster instance"
   ([^Cluster cluster]
      (.connect cluster)))
 
+(t/ann shutdown [(U Cluster Session) -> nil])
 (defn shutdown
   "Shutdowns Session or Cluster instance, clearing the underlying
 pools/connections"
@@ -114,6 +125,8 @@ pools/connections"
   ([]
      (shutdown *session*)))
 
+(t/ann prepare (Fn [Session String -> PreparedStatement]
+                   [String -> PreparedStatement]))
 (defn prepare
   "Returns a com.datastax.driver.core.PreparedStatement instance to be
 used in `execute` after it's been bound with `bind`"
@@ -122,6 +135,7 @@ used in `execute` after it's been bound with `bind`"
   ([query]
      (prepare *session* query)))
 
+(t/ann bind [PreparedStatement -> (Sequential* Any)])
 (defn bind
   "Returns a com.datastax.driver.core.BoundStatement instance to be
   used with `execute`"
