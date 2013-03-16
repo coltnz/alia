@@ -2,7 +2,7 @@
   (:require
    [clojure.core.memoize :as memo]
    [clojure.core.typed :as t]
-   [qbits.knit :as knit]
+   [qbits.knit :as knit] ;; type me!
    [qbits.hayt :as hayt]
    [qbits.alia.types :refer :all]
    [qbits.alia.codec :as codec]
@@ -70,6 +70,8 @@
 (def set-executor!
   "Sets root value of *executor*"
   (utils/var-root-setter *executor*))
+
+;; (t/cf (set-executor! (knit/executor :cached)))
 
 (defmacro with-executor
   "Binds qbits.alia/*executor*"
