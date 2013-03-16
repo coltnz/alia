@@ -4,6 +4,7 @@
    [clojure.core.typed :as t]
    [qbits.knit :as knit]
    [qbits.hayt :as hayt]
+   [qbits.alia.types :refer :all]
    [qbits.alia.codec :as codec]
    [qbits.alia.codec.eaio-uuid]
    [qbits.alia.utils :as utils]
@@ -27,19 +28,10 @@
    [java.nio ByteBuffer]
    [java.util.concurrent ExecutorService]))
 
-(t/def-alias Sequential* (TFn [[x :variance :covariant]]
-                              (U (Vector* x)
-                                 (List* x)
-                                 (Seq* x))
 
-;; Types
-(t/def-alias ConsistencyType (U ':one ':two ':three ':quorum ':local ':local-quorum
-                              ':each-quorum))
-(t/ann *consistency* (t/Option ConsistencyType))
-(t/ann consistency-levels (HMap {ConsistencyLevel ConsistencyType}))
-(t/ann set-consistency! [ConsistencyType -> nil])
-
-;;
+(t/ann *consistency* (t/Option ConsistencyValue))
+(t/ann consistency-levels (HMap {ConsistencyLevel ConsistencyValue}))
+(t/ann set-consistency! [ConsistencyValue -> nil])
 (def ^:dynamic *consistency* :one)
 (def consistency-levels (utils/enum-values->map (ConsistencyLevel/values)))
 
@@ -142,6 +134,7 @@ used in `execute` after it's been bound with `bind`"
   [^PreparedStatement prepared-statement values]
   (.bind prepared-statement (to-array (map codec/encode values))))
 
+;; http://clojure-doc.org/articles/ecosystem/core_typed/mm_protocol_datatypes.html
 (defprotocol PStatement
   (query->statement [q values] "Encodes input into a Statement (Query) instance"))
 
@@ -173,6 +166,10 @@ used in `execute` after it's been bound with `bind`"
 
   (.setConsistencyLevel statement (consistency-levels consistency)))
 
+(t/ann execute (Fn [Session CQLQuery Any * ;; to be replaced with :kw opts impl of core.typed when its ready
+                    -> CQLResult]
+                   [CQLQuery Any * ;; to be replaced with :kw opts impl of core.typed when its ready
+                    -> CQLResult]))
 (defn execute
   "Executes querys against a session. Returns a collection of rows.
 The first argument can be either a Session instance or the query
@@ -208,6 +205,10 @@ If you chose the latter the Session must be bound with
     (set-statement-options! statement routing-key retry-policy tracing? consistency)
     (codec/result-set->maps (.execute session statement) keywordize?)))
 
+(t/ann execute-async (Fn [Session CQLQuery Any * ;; to be replaced with :kw opts impl of core.typed when its ready
+                          -> CQLAsyncResult]
+                         [CQLQuery Any * ;; to be replaced with :kw opts impl of core.typed when its ready
+                          -> CQLAsyncResult]))
 (defn execute-async
   "Same as execute, but returns a promise and accepts :success and :error
   handlers, you can also pass :executor for the ResultFuture, it
