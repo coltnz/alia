@@ -4,15 +4,24 @@
    ;; [qbits.hayt.types :refer :all]
    )
   (:import
-   [clojure.lang Named IDeref] ;; the IPMap need to be replace with HaytQuery Type
+   [clojure.lang
+    IPersistentVector
+    ISeq
+    Named
+    IDeref] ;; the IPMap need to be replace with HaytQuery Type
     [com.datastax.driver.core
     PreparedStatement
     Query]))
 
-(t/def-alias Sequential* (TFn [[x :variance :covariant]]
-                              (U (Vector* x)
-                                 (List* x)
-                                 (Seq* x))))
+;; we only deal with string values in reality but we could support
+;; j.n.* instances
+(t/def-alias Hosts (All [x]
+                        (U (I (ISeq x) (CountRange 1))
+                           (I (IPersistentVector x) (CountRange 1)))))
+
+(t/def-alias Values
+  (U (ISeq Any)
+     (IPersistentVector Any)))
 
 ;; Types
 (t/def-alias ConsistencyValue (U ':one ':two ':three ':quorum ':local
