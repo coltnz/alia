@@ -19,7 +19,6 @@
 ;; j.n.* instances. Can also be just a string in case it's a single host
 (t/def-alias Hosts (U String
                       (I (Seqable String) (CountRange 1))))
-
 ;; (t/ann foo [Hosts -> String])
 ;; (defn foo [x]
 ;;   (apply str x))

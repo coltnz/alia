@@ -40,6 +40,8 @@
 (t/ann *consistency* (t/Option ConsistencyValue))
 (t/ann consistency-levels (APersistentMap ConsistencyLevel ConsistencyValue))
 (t/ann set-consistency! [ConsistencyValue -> nil])
+(t/non-nil-return com.datastax.driver.core.ConsistencyLevel/values :all)
+
 (def ^:dynamic *consistency* :one)
 (def consistency-levels (utils/enum-values->map (ConsistencyLevel/values)))
 

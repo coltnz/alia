@@ -15,7 +15,10 @@
     ReconnectionPolicy
     RetryPolicy]))
 
+(t/non-nil-return com.datastax.driver.core.HostDistance/values :all)
 (def host-distance (utils/enum-values->map (HostDistance/values)))
+
+(t/non-nil-return com.datastax.driver.core.ProtocolOptions$Compression/values :all)
 (def compression (utils/enum-values->map (ProtocolOptions$Compression/values)))
 
 (t/tc-ignore ;;tmp
