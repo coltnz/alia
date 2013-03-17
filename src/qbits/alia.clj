@@ -26,6 +26,8 @@
     ResultSetFuture
     Session
     SimpleStatement]
+   [com.datastax.driver.core.policies
+    RetryPolicy]
    [com.google.common.util.concurrent
     Futures
     FutureCallback]
@@ -103,8 +105,7 @@
    the cache factory, defaults to LU with a threshold of 100"
   (utils/var-root-setter *hayt-raw-fn*))
 
-(t/ann cluster [(Sequential* String) ;; broken, will barf on seqs!
-                Any * ;; to be replaced with kw type when it is implemented in core.typed
+(t/ann cluster [Hosts Any * ;; to be replaced with kw type when it is implemented in core.typed
                 -> Cluster])
 (defn cluster
   "Returns a new com.datastax.driver.core/Cluster instance"
@@ -144,7 +145,7 @@ used in `execute` after it's been bound with `bind`"
   ([query]
      (prepare *session* query)))
 
-(t/ann bind [PreparedStatement -> (Sequential* Any)])
+(t/ann bind [PreparedStatement Values -> BoundStatement])
 (defn bind
   "Returns a com.datastax.driver.core.BoundStatement instance to be
   used with `execute`"
@@ -152,7 +153,9 @@ used in `execute` after it's been bound with `bind`"
   (.bind prepared-statement (to-array (map codec/encode values))))
 
 ;; http://clojure-doc.org/articles/ecosystem/core_typed/mm_protocol_datatypes.html
-(defprotocol PStatement
+(t/ann-protocol PStatement
+              query->statement [CQLQuery -> Query])
+(t/defprotocol> PStatement
   (query->statement [q values] "Encodes input into a Statement (Query) instance"))
 
 (extend-protocol PStatement
@@ -171,6 +174,9 @@ used in `execute` after it's been bound with `bind`"
   (query->statement [q _]
     (query->statement (*hayt-raw-fn* q) nil)))
 
+(t/ann set-statement-options! [Query ByteBuffer RetryPolicy Boolean
+                               ConsistencyValue
+                               -> Query])
 (defn ^:private set-statement-options!
   [^Query statement routing-key retry-policy tracing? consistency]
   (when routing-key
