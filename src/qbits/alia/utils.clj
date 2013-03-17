@@ -7,7 +7,7 @@
    [clojure.core.typed :as t]))
 
 (t/ann enum-values->map (All [x]
-                             [(Array x) -> (APersistentMap Named x)]))
+                             [(Array x) -> [Named -> x]]))
 (t/tc-ignore
  (defn enum-values->map
    [enum-values]
@@ -21,6 +21,7 @@
     {}
     enum-values)))
 
+
 (defmacro var-root-setter [x]
   `(fn [arg#]
      (alter-var-root (var ~x)
@@ -28,9 +29,8 @@
                      (when (thread-bound? (var ~x))
                        (set! ~x arg#)))))
 
-
-(import [com.datastax.driver.core ConsistencyLevel])
-(t/non-nil-return com.datastax.driver.core.ConsistencyLevel/values :all)
-(t/cf (enum-values->map (ConsistencyLevel/values)))
+;; (import [com.datastax.driver.core ConsistencyLevel])
+;; (t/non-nil-return com.datastax.driver.core.ConsistencyLevel/values :all)
+;; (t/cf (enum-values->map (ConsistencyLevel/values)))
 
 ;; (t/check-ns)

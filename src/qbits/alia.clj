@@ -36,12 +36,11 @@
 
 (t/non-nil-return com.datastax.driver.core.ConsistencyLevel/values :all)
 (t/ann *consistency* (t/Option ConsistencyValue))
-(t/ann consistency-levels (APersistentMap ConsistencyValue ConsistencyLevel)
+(t/ann consistency-levels [ConsistencyValue -> ConsistencyLevel])
 (t/ann set-consistency! [ConsistencyValue -> nil])
 
 (def ^:dynamic *consistency* :one)
 (def consistency-levels (utils/enum-values->map (ConsistencyLevel/values)))
-
 
 (defmacro with-consistency
   "Binds qbits.alia/*consistency*"
@@ -49,9 +48,10 @@
   `(binding [qbits.alia/*consistency* ~consistency]
      ~@body))
 
-(def set-consistency!
-  "Sets root value of *consistency*"
-  (utils/var-root-setter *consistency*))
+(t/tc-ignore
+ (def set-consistency!
+   "Sets root value of *consistency*"
+   (utils/var-root-setter *consistency*)))
 
 (t/ann *session* (t/Option Session))
 (def ^:dynamic *session*)
@@ -63,9 +63,10 @@
      ~@body))
 
 (t/ann set-session! [Session -> nil])
-(def set-session!
-  "Sets root value of *session*"
-  (utils/var-root-setter *session*))
+(t/tc-ignore
+ (def set-session!
+   "Sets root value of *session*"
+   (utils/var-root-setter *session*)))
 
 (t/ann *executor* ExecutorService)
 (t/ann qbits.knit/executor [(U ':single ':cached ':fixed) Any *
@@ -75,9 +76,10 @@
 (t/cf (knit/executor :cached))
 
 (t/ann set-executor! [ExecutorService -> nil])
-(def set-executor!
-  "Sets root value of *executor*"
-  (utils/var-root-setter *executor*))
+(t/tc-ignore
+ (def set-executor!
+   "Sets root value of *executor*"
+   (utils/var-root-setter *executor*)))
 
 ;; (t/cf (set-executor! (knit/executor :cached)))
 
@@ -91,9 +93,10 @@
 (def ^:dynamic *keywordize* false)
 
 (t/ann set-keywordize! [Boolean -> nil])
-(def set-keywordize!
-  "Sets root value of *keywordize*"
-  (utils/var-root-setter *keywordize*))
+(t/tc-ignore
+ (def set-keywordize!
+   "Sets root value of *keywordize*"
+   (utils/var-root-setter *keywordize*)))
 
 ;; this should use types from hayt.types when it's published/merged
 (t/def-alias HaytRawFn [HaytQuery -> String])
@@ -101,10 +104,11 @@
 (def ^:dynamic *hayt-raw-fn* (memo/memo-lu hayt/->raw 100))
 
 (t/ann set-hayt-raw-fn! [HaytRawFn -> nil])
-(def set-hayt-raw-fn!
-  "Sets root value of *hayt-raw-fn*, allowing to change
+(t/tc-ignore
+ (def set-hayt-raw-fn!
+   "Sets root value of *hayt-raw-fn*, allowing to change
    the cache factory, defaults to LU with a threshold of 100"
-  (utils/var-root-setter *hayt-raw-fn*))
+   (utils/var-root-setter *hayt-raw-fn*)))
 
 (t/ann cluster [Hosts Any * ;; to be replaced with kw type when it is implemented in core.typed
                 -> Cluster])
