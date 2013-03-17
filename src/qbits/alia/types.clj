@@ -16,8 +16,9 @@
     Query]))
 
 ;; we only deal with string values in reality but we could support
-;; j.n.* instances
-(t/def-alias Hosts (I (Seqable String) (CountRange 1)))
+;; j.n.* instances. Can also be just a string in case it's a single host
+(t/def-alias Hosts (U String
+                      (I (Seqable String) (CountRange 1))))
 
 ;; (t/ann foo [Hosts -> String])
 ;; (defn foo [x]
@@ -33,6 +34,9 @@
 ;; Types
 (t/def-alias ConsistencyValue (U ':one ':two ':three ':quorum ':local
                                  ':local-quorum ':each-quorum))
+
+(t/def-alias HostDistanceValue (U ':local ':remote ':none))
+(t/def-alias CompressionValue (U ':snappy ':none))
 
 (t/def-alias HaytQuery '{Named Any}) ;; replace with HaytQuery Type when merged
 (t/def-alias CQLQuery (U Query
