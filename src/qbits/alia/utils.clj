@@ -5,7 +5,7 @@
    [clojure.core.typed :as t]))
 
 (t/ann enum-values->map (All [x]
-                             [(Array x) -> '{x Named}]))
+                             [(Array x) -> '{Named x}]))
 (defn enum-values->map
   [enum-values]
   (reduce
