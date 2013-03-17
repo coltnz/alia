@@ -36,11 +36,12 @@
 
 (t/non-nil-return com.datastax.driver.core.ConsistencyLevel/values :all)
 (t/ann *consistency* (t/Option ConsistencyValue))
-(t/ann consistency-levels (APersistentMap ConsistencyLevel ConsistencyValue))
+(t/ann consistency-levels (APersistentMap ConsistencyValue ConsistencyLevel)
 (t/ann set-consistency! [ConsistencyValue -> nil])
 
 (def ^:dynamic *consistency* :one)
 (def consistency-levels (utils/enum-values->map (ConsistencyLevel/values)))
+
 
 (defmacro with-consistency
   "Binds qbits.alia/*consistency*"

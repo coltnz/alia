@@ -27,3 +27,10 @@
                      (constantly arg#)
                      (when (thread-bound? (var ~x))
                        (set! ~x arg#)))))
+
+
+(import [com.datastax.driver.core ConsistencyLevel])
+(t/non-nil-return com.datastax.driver.core.ConsistencyLevel/values :all)
+(t/cf (enum-values->map (ConsistencyLevel/values)))
+
+;; (t/check-ns)
