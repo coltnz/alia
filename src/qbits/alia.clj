@@ -14,7 +14,8 @@
     Named
     Sequential
     PersistentList
-    APersistentVector]
+    APersistentVector
+    APersistentMap]
    [com.datastax.driver.core
     BoundStatement
     Cluster
@@ -37,7 +38,7 @@
 ;; (t/check-ns)
 
 (t/ann *consistency* (t/Option ConsistencyValue))
-(t/ann consistency-levels (HMap {ConsistencyLevel ConsistencyValue}))
+(t/ann consistency-levels (APersistentMap ConsistencyLevel ConsistencyValue))
 (t/ann set-consistency! [ConsistencyValue -> nil])
 (def ^:dynamic *consistency* :one)
 (def consistency-levels (utils/enum-values->map (ConsistencyLevel/values)))

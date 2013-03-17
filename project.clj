@@ -5,7 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [org.clojure/core.memoize "0.5.2"]
-                 [core.typed "0.1.7"]
+                 [core.typed "0.1.8"]
                  [cc.qbits/knit "0.2.1"]
                  [cc.qbits/hayt "0.4.0-beta1"]
                  [cc.qbits/tardis "1.0.0"]
