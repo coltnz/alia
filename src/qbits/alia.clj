@@ -32,6 +32,7 @@
    [java.nio ByteBuffer]
    [java.util.concurrent ExecutorService]))
 
+;; (t/check-ns)
 
 (t/ann *consistency* (t/Option ConsistencyValue))
 (t/ann consistency-levels (HMap {ConsistencyLevel ConsistencyValue}))
@@ -63,8 +64,12 @@
   "Sets root value of *session*"
   (utils/var-root-setter *session*))
 
-(t/ann *executor* ExecutorService) ;; knit is untyped, will barf
+(t/ann *executor* ExecutorService)
+(t/ann qbits.knit/executor [(U ':single ':cached ':fixed) Any *
+                            -> ExecutorService])
 (def ^:dynamic *executor* (knit/executor :cached))
+
+(t/cf (knit/executor :cached))
 
 (t/ann set-executor! [ExecutorService -> nil])
 (def set-executor!
