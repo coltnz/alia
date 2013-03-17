@@ -5,8 +5,10 @@
    )
   (:import
    [clojure.lang
-    IPersistentVector
-    ISeq
+    Seqable
+    ;; IPersistentVector
+    ;; ISeq
+    ;; PersistentList
     Named
     IDeref] ;; the IPMap need to be replace with HaytQuery Type
     [com.datastax.driver.core
@@ -15,13 +17,18 @@
 
 ;; we only deal with string values in reality but we could support
 ;; j.n.* instances
-(t/def-alias Hosts (All [x]
-                        (U (I (ISeq x) (CountRange 1))
-                           (I (IPersistentVector x) (CountRange 1)))))
+(t/def-alias Hosts (I (Seqable String) (CountRange 1)))
+
+;; (t/ann foo [Hosts -> String])
+;; (defn foo [x]
+;;   (apply str x))
+
+;; (t/cf (foo ["s" "s"]))
+
+;; (prn (t/cf ["b"]))
 
 (t/def-alias Values
-  (t/Option (U (ISeq Any)
-               (IPersistentVector Any))))
+  (t/Option (Seqable Any)))
 
 ;; Types
 (t/def-alias ConsistencyValue (U ':one ':two ':three ':quorum ':local
