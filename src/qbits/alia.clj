@@ -12,9 +12,6 @@
   (:import
    [clojure.lang
     Named
-    Sequential
-    PersistentList
-    APersistentVector
     APersistentMap]
    [com.datastax.driver.core
     BoundStatement
@@ -35,12 +32,12 @@
    [java.nio ByteBuffer]
    [java.util.concurrent ExecutorService]))
 
-;; (t/check-ns)
+(t/check-ns)
 
+(t/non-nil-return com.datastax.driver.core.ConsistencyLevel/values :all)
 (t/ann *consistency* (t/Option ConsistencyValue))
 (t/ann consistency-levels (APersistentMap ConsistencyLevel ConsistencyValue))
 (t/ann set-consistency! [ConsistencyValue -> nil])
-(t/non-nil-return com.datastax.driver.core.ConsistencyLevel/values :all)
 
 (def ^:dynamic *consistency* :one)
 (def consistency-levels (utils/enum-values->map (ConsistencyLevel/values)))
