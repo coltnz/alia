@@ -20,8 +20,8 @@
                            (I (IPersistentVector x) (CountRange 1)))))
 
 (t/def-alias Values
-  (U (ISeq Any)
-     (IPersistentVector Any)))
+  (t/Option (U (ISeq Any)
+               (IPersistentVector Any))))
 
 ;; Types
 (t/def-alias ConsistencyValue (U ':one ':two ':three ':quorum ':local
