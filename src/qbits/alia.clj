@@ -110,12 +110,13 @@
 
 (t/ann cluster [Hosts Any * ;; to be replaced with kw type when it is implemented in core.typed
                 -> Cluster])
-(defn cluster
-  "Returns a new com.datastax.driver.core/Cluster instance"
-  [hosts & {:as options}]
-  (-> (Cluster/builder)
-      (copt/set-cluster-options! (assoc options :contact-points hosts))
-      .build))
+(t/tc-ignore
+ (defn cluster
+   "Returns a new com.datastax.driver.core/Cluster instance"
+   [hosts & {:as options}]
+   (-> (Cluster/builder)
+       (copt/set-cluster-options! (assoc options :contact-points hosts))
+       .build)))
 
 (t/ann connect (Fn [Cluster String -> Session]
                    [Cluster -> Session]))
@@ -157,7 +158,7 @@ used in `execute` after it's been bound with `bind`"
 
 ;; http://clojure-doc.org/articles/ecosystem/core_typed/mm_protocol_datatypes.html
 (t/ann-protocol PStatement
-              query->statement [CQLQuery -> Query])
+                query->statement [CQLQuery -> Query])
 (t/defprotocol> PStatement
   (query->statement [q values] "Encodes input into a Statement (Query) instance"))
 
@@ -192,12 +193,11 @@ used in `execute` after it's been bound with `bind`"
 
   (.setConsistencyLevel statement (consistency-levels consistency)))
 
-(t/ann execute (Fn [Session CQLQuery Any * ;; to be replaced with :kw opts impl of core.typed when its ready
-                    -> CQLResult]
-                   [CQLQuery Any * ;; to be replaced with :kw opts impl of core.typed when its ready
-                    -> CQLResult]))
-(defn execute
-  "Executes querys against a session. Returns a collection of rows.
+(t/ann execute (Fn [Session CQLQuery Any * -> CQLResult]
+                   [CQLQuery Any * -> CQLResult]))
+(t/tc-ignore
+ (defn execute
+   "Executes querys against a session. Returns a collection of rows.
 The first argument can be either a Session instance or the query
 directly.
 
@@ -219,51 +219,50 @@ or
 
 If you chose the latter the Session must be bound with
 `with-session`."
-  [& args]
-  (let [[^Session session query & {:keys [consistency routing-key retry-policy
-                                          tracing? values keywordize?]
-                                   :or {consistency *consistency*
-                                        keywordize? *keywordize*}}]
-        (if (even? (count args))
-          args
-          (conj args *session*))
-        ^Query statement (query->statement query values)]
-    (set-statement-options! statement routing-key retry-policy tracing? consistency)
-    (codec/result-set->maps (.execute session statement) keywordize?)))
+   [& args]
+   (let [[^Session session query & {:keys [consistency routing-key retry-policy
+                                           tracing? values keywordize?]
+                                    :or {consistency *consistency*
+                                         keywordize? *keywordize*}}]
+         (if (even? (count args))
+           args
+           (conj args *session*))
+         ^Query statement (query->statement query values)]
+     (set-statement-options! statement routing-key retry-policy tracing? consistency)
+     (codec/result-set->maps (.execute session statement) keywordize?))))
 
-(t/ann execute-async (Fn [Session CQLQuery Any * ;; to be replaced with :kw opts impl of core.typed when its ready
-                          -> CQLAsyncResult]
-                         [CQLQuery Any * ;; to be replaced with :kw opts impl of core.typed when its ready
-                          -> CQLAsyncResult]))
-(defn execute-async
-  "Same as execute, but returns a promise and accepts :success and :error
+(t/ann execute-async (Fn [Session CQLQuery Any * -> CQLAsyncResult]
+                         [CQLQuery Any * -> CQLAsyncResult]))
+(t/tc-ignore
+ (defn execute-async
+   "Same as execute, but returns a promise and accepts :success and :error
   handlers, you can also pass :executor for the ResultFuture, it
   defaults to a cachedThreadPool if you don't"
-  [& args]
-  (let [[^Session session query & {:keys [success error executor consistency
-                                          routing-key retry-policy tracing?
-                                          values keywordize?]
-                                   :or {executor *executor*
-                                        consistency *consistency*
-                                        keywordize? *keywordize*}}]
-        (if (even? (count args))
-          args
-          (conj args *session*))
-        ^Query statement (query->statement query values)]
-    (set-statement-options! statement routing-key retry-policy tracing? consistency)
-    (let [^ResultSetFuture rs-future (.executeAsync session statement)
-          async-result (promise)]
-      (Futures/addCallback
-       rs-future
-       (reify FutureCallback
-         (onSuccess [_ result]
-           (let [result (codec/result-set->maps (.get rs-future) keywordize?)]
-             (deliver async-result result)
-             (when (fn? success)
-               (success result))))
-         (onFailure [_ err]
-           (deliver async-result err)
-           (when (fn? error)
-             (error err))))
-       executor)
-      async-result)))
+   [& args]
+   (let [[^Session session query & {:keys [success error executor consistency
+                                           routing-key retry-policy tracing?
+                                           values keywordize?]
+                                    :or {executor *executor*
+                                         consistency *consistency*
+                                         keywordize? *keywordize*}}]
+         (if (even? (count args))
+           args
+           (conj args *session*))
+         ^Query statement (query->statement query values)]
+     (set-statement-options! statement routing-key retry-policy tracing? consistency)
+     (let [^ResultSetFuture rs-future (.executeAsync session statement)
+           async-result (promise)]
+       (Futures/addCallback
+        rs-future
+        (reify FutureCallback
+          (onSuccess [_ result]
+            (let [result (codec/result-set->maps (.get rs-future) keywordize?)]
+              (deliver async-result result)
+              (when (fn? success)
+                (success result))))
+          (onFailure [_ err]
+            (deliver async-result err)
+            (when (fn? error)
+              (error err))))
+        executor)
+       async-result))))
