@@ -7,6 +7,7 @@
 
 (t/ann enum-values->map (All [x]
                              [(Array x) -> (APersistentMap Named x)]))
+
 (defn enum-values->map
   [enum-values]
   (reduce
@@ -19,9 +20,17 @@
    {}
    enum-values))
 
-;; (t/cf (enum-values->map (ConsistencyLevel/values)))
-;; (t/check-ns
- ;; )
+
+
+(t/cf (enum-values->map (ConsistencyLevel/values)))
+;; (clojure.lang.APersistentMap clojure.lang.Named (U com.datastax.driver.core.ConsistencyLevel nil))
+
+
+(t/cf (ConsistencyLevel/values))
+;; (Array3 com.datastax.driver.core.ConsistencyLevel (U com.datastax.driver.core.ConsistencyLevel nil) (U com.datastax.driver.core.ConsistencyLevel nil))
+
+
+;; (t/check-ns )
 
 (defmacro var-root-setter [x]
   `(fn [arg#]
